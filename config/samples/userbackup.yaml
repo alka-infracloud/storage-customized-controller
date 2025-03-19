@@ -1,0 +1,36 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: csi-hostpath-sc
+provisioner: hostpath.csi.k8s.io
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+---
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshotClass
+metadata:
+  name: csi-hostpath-snapshotclass
+driver: hostpath.csi.k8s.io
+deletionPolicy: Delete 
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: original-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: csi-hostpath-sc
+---
+apiVersion: storageresource.k8s.infracloud/v1alpha1
+kind: UserBackup
+metadata:
+  name: userbackup-pvc
+  namespace: default
+spec:
+  pvcName: original-pvc
+  snapshotClassName: csi-hostpath-snapclass
+

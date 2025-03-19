@@ -1,0 +1,5 @@
+## Append samples of your project ##
+resources:
+- userbackup.yaml
+- userrestore.yaml
+# +kubebuilder:scaffold:manifestskustomizesamples
