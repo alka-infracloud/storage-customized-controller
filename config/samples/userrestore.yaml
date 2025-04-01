@@ -1,0 +1,11 @@
+apiVersion: storageresource.k8s.infracloud/v1alpha1
+kind: UserRestore
+metadata:
+  labels:
+    app.kubernetes.io/name: restore-customized-controller
+    app.kubernetes.io/managed-by: kustomize
+  name: restored-pvc
+  namespace: default
+spec:
+  userBackUpName: userbackup-pvc
+  accessMode: ReadWriteOnce
