@@ -2,12 +2,16 @@
 This is a kubernetes controller that is going to backup the volumes, using kubernetes snapshot APIs, that are provided by the users as input. Once the volume is snapshotted users can also choose to restore that snapshot to get their data back.
 
 ## Description
-This controller allow users to select set of volumes to take the backup and restore it whenever needed. In the backend, k8s snapshot APIs are being used to create storage resources. 
+This controller allow users to select volume to take the backup and restore it whenever needed. In the backend, k8s snapshot APIs are being used to create storage resources. 
 
 ## Design 
 Both the backup and restore controller follow controller pattern. The backup controller watches for userbackup CR create/update/delete events. Backup controller creates/deletes VolumeSnapshot object accordingly. The restore controller watches for userrestore CR create/update/delete events. Restore controller creates/deletes PVC object accordingly.
 
 There are two more controller for reflecting the status of underline resources. Backup_status controller watches on VolumeSnapshot CR and syncs userBackup resource status with the VolumeSnapshot CR. Restore_status controller watches on PVC CR and syncs userRestore resource status with the PVC CR. 
+
+Above controllers work together to give seamless experience. Once userBackup resource is created, backup controller sets initial conditions and creates underline Volume Snapshot CR. K8s VolumeSnapshot controller reconciles volumesnapshot CR. UserBackupStatus controller watching on VolumeSnapshot syncs the status of userbackup resource with volumesnapshot status. 
+
+Similarly, userRestore resource is created, restore controller sets initial conditions and creates underline PVC CR. K8s storage controller reconciles PVC. UserRestoreStatus controller watching on PVC syncs the status of userrestore resource with PVC status.
 
 ## Usage
 
@@ -54,14 +58,14 @@ There are two more controller for reflecting the status of underline resources. 
     make deploy IMG=calka/customized_backup_restore_ctrl:latest
     ```
 
-4. Create samples for the controller.
+4. User can snapshot a PVC by following the steps mentioned below. 
 You can apply the samples (examples) from the config/sample:
     ```sh
    kubectl apply -f config/samples/userbackup.yaml
    kubectl apply -f config/samples/userrestore.yaml
    ```
 
-5. Delete samples. 
+5. User can delete the snapshot by following the steps mentioned below. 
     ```sh
     kubectl apply -k config/samples/
     ```
